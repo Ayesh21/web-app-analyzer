@@ -8,10 +8,12 @@ import (
 
 	"web-app-analyzer/internal/model"
 	"web-app-analyzer/internal/service"
+	"web-app-analyzer/internal/templates"
 )
 
 // Load HTML Templates
-var templatehtml = template.Must(template.ParseFiles("templates/index.html"))
+
+var templatehtml = template.Must(template.ParseFS(templates.FS, "index.html"))
 
 func HomePageHandler(w http.ResponseWriter, r *http.Request) {
 	templatehtml.Execute(w, nil)

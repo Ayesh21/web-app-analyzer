@@ -17,12 +17,19 @@ func AnalyzeHTML(response *http.Response, baseURL *url.URL) model.PageData {
 		HeadingsCount: make(map[string]int),
 	}
 
-	var inTitle, inLoginForm bool
+	var inTitle bool
 	for {
 		tokenType := tokenizer.Next()
 		switch tokenType {
 		case html.ErrorToken:
 			return pageData
+		case html.DoctypeToken:
+			token := tokenizer.Token()
+			if strings.Contains(token.Data, "html") {
+				pageData.HTMLVersion = "HTML5"
+			} else {
+				pageData.HTMLVersion = "Unknown"
+			}
 		case html.StartTagToken, html.SelfClosingTagToken:
 			token := tokenizer.Token()
 			switch token.Data {
@@ -35,25 +42,22 @@ func AnalyzeHTML(response *http.Response, baseURL *url.URL) model.PageData {
 					if attr.Key == "href" {
 						link := attr.Val
 
-						if !strings.HasPrefix(link, "http") {
-							// Resolve the link to an absolute URL
+						// Check for internal links
+						if !strings.HasPrefix(link, "http") && !strings.HasPrefix(link, "//") {
 							linkURL, err := baseURL.Parse(link)
 							if err == nil {
 								link = linkURL.String()
 							}
-						}
-
-						if strings.HasPrefix(link, "http") {
-							pageData.ExternalLinks++
-						} else {
 							pageData.InternalLinks++
+						} else {
+							pageData.ExternalLinks++
 						}
 					}
 				}
 			case "input":
 				for _, attr := range token.Attr {
 					if attr.Key == "type" && attr.Val == "password" {
-						inLoginForm = true
+						pageData.HasLoginForm = true
 					}
 				}
 
@@ -66,9 +70,6 @@ func AnalyzeHTML(response *http.Response, baseURL *url.URL) model.PageData {
 		}
 
 	}
-
-	pageData.HasLoginForm = inLoginForm
-	pageData.HTMLVersion = "HTML5"
 
 	return pageData
 }
