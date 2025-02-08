@@ -23,5 +23,8 @@ jobs:
       - name: Install Dependencies
         run: go mod tidy
 
-      - name: Run Tests
+      - name: Run Unit Tests
         run: go test -v ./internal/controller/... ./internal/service/...
+
+      - name: Run Unit Tests with coverage
+        run: go test -cover ./internal/controller/... ./internal/service/...
