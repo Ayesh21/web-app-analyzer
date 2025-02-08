@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Page Analyzer</title>
+</head>
+<body>
+<h1>Web Page Analyzer</h1>
+<form action="/analyze" method="post">
+    <label for="url">Enter URL:</label>
+    <input type="text" id="url" name="url" required>
+    <button type="submit">Analyze</button>
+</form>
+
+{{if .ErrorMessage}}
+<p style="color: red;">ErrorMessage: {{.ErrorMessage}}</p>
+{{else if .URL}}
+<h2>Analysis Results for: {{.URL}}</h2>
+<ul>
+    <li><strong>HTML Version:</strong> {{.HTMLVersion}}</li>
+    <li><strong>Page Title:</strong> {{.Title}}</li>
+    <li><strong>Headings:</strong>
+        <ul>
+            {{range $key, $val := .HeadingsCount}}
+            <li>{{$key}}: {{$val}}</li>
+            {{end}}
+        </ul>
+    </li>
+    <li><strong>Internal Links:</strong> {{.InternalLinks}}</li>
+    <li><strong>External Links:</strong> {{.ExternalLinks}}</li>
+    <li><strong>Broken Links:</strong> {{.BrokenLinks}}</li>
+    <li><strong>Login Form Present:</strong> {{if .HasLoginForm}}Yes{{else}}No{{end}}</li>
+</ul>
+{{end}}
+</body>
+</html>
