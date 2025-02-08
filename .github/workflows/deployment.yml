@@ -1,0 +1,28 @@
+name: Web-App-Analyzer CI/CD
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+
+
+jobs:
+  test-deploy:
+    name: Run Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the code
+        uses: actions/checkout@v4
+
+        name: Set up Go Lang
+        uses: actions/setup-go@v5
+        with:
+          go-version: 1.23
+        run: go version
+
+        name: Install Dependencies
+        run: go mod tidy
+
+        name: Run Tests
+        run: go test -v ./internal/controller/... ./internal/service/...
