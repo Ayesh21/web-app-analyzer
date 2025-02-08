@@ -3,14 +3,14 @@ name: Web-App-Analyzer CI/CD
 on:
   push:
     branches:
-      - main
       - develop
 
 
 jobs:
-  test-deploy:
+  deploy:
     name: Run Unit Tests
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout the code
         uses: actions/checkout@v4
