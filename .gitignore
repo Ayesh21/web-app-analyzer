@@ -20,7 +20,6 @@
 *.out
 
 # Go workspace file
-/go.sum
 /go.work.sum
 
 # Ignore IDE/editor config files
