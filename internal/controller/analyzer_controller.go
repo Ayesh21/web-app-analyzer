@@ -12,7 +12,6 @@ import (
 )
 
 // Load HTML Templates
-
 var templatehtml = template.Must(template.ParseFS(templates.FS, "index.html"))
 
 func HomePageHandler(w http.ResponseWriter, r *http.Request) {
