@@ -1,6 +1,9 @@
 # Ignore Go build artifacts
 /web-app-analyzer
 /web-app-analyzer.exe
+/coverage
+/coverage.out
+/coverage.html
 
 # Binaries for programs and plugins
 *.exe

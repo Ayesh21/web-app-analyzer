@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -73,4 +74,31 @@ func TestAnalyzerHandler_FailedFetch(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, recorder.Code, "Expected HTTP status 200 OK")
 	assert.Contains(t, recorder.Body.String(), "Failed to fetch URL", "Expected error message for failed fetch")
+}
+
+func TestAnalyzerHandler_HttpError(t *testing.T) {
+	// Mock a 500 internal server error
+	mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusInternalServerError)
+	}))
+	defer mockServer.Close()
+
+	// Create a request with the mock URL
+	req, err := http.NewRequest("POST", "/analyze", strings.NewReader(fmt.Sprintf("url=%s", mockServer.URL)))
+	assert.NoError(t, err, "Error creating request")
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
+	// Create a response recorder
+	recorder := httptest.NewRecorder()
+
+	// Call the handler
+	handler := http.HandlerFunc(AnalyzerHandler)
+	handler.ServeHTTP(recorder, req)
+
+	// Expected error message
+	expectedErrorMessage := fmt.Sprintf("HTTP Error: %d %s", http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError))
+
+	// Validate response
+	assert.Equal(t, http.StatusOK, recorder.Code, "Expected HTTP status 200 OK (page with error message)")
+	assert.Contains(t, recorder.Body.String(), expectedErrorMessage, "Expected error message in response body")
 }

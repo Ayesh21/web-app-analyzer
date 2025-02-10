@@ -1,6 +1,7 @@
 package service
 
 import (
+	"golang.org/x/net/html"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -27,7 +28,7 @@ func TestAnalyzeHTML(t *testing.T) {
 	}{
 		{
 			name:    "Test with internal and external links",
-			html:    `<html><head><title>Test Page</title></head><body><a href="https://example.com">External Link</a><a href="/internal">Internal Link</a></body></html>`,
+			html:    `<html><head><title>Test Page</title></head><body><a href="https://test.com">External Link</a><a href="/internal">Internal Link</a></body></html>`,
 			baseURL: "http://localhost",
 			expected: model.PageData{
 				Title:         "Test Page",
@@ -77,19 +78,6 @@ func TestAnalyzeHTML(t *testing.T) {
 				HTMLVersion:   "HTML5", // Expecting "HTML5" due to the DOCTYPE
 			},
 		},
-		{
-			name:    "Test non-HTML5 DOCTYPE declaration",
-			html:    `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html><head><title>XHTML Page</title></head><body></body></html>`,
-			baseURL: "http://localhost",
-			expected: model.PageData{
-				Title:         "XHTML Page",
-				HeadingsCount: map[string]int{},
-				ExternalLinks: 0,
-				InternalLinks: 0,
-				HasLoginForm:  false,
-				HTMLVersion:   "HTML5", // Expecting "HTML5" since the DOCTYPE is still HTML
-			},
-		},
 	}
 
 	for _, tt := range tests {
@@ -105,6 +93,84 @@ func TestAnalyzeHTML(t *testing.T) {
 			actual := AnalyzeHTML(response, baseURL)
 
 			// Assert that the actual result matches the expected
+			assert.Equal(t, tt.expected, actual)
+		})
+	}
+}
+
+func TestDetectHTMLVersion(t *testing.T) {
+	tests := []struct {
+		name     string
+		doctype  string
+		expected string
+	}{
+		{
+			name:     "HTML5 DOCTYPE",
+			doctype:  "<!DOCTYPE html>",
+			expected: "HTML5",
+		},
+		{
+			name:     "XHTML 1.0 Strict DOCTYPE",
+			doctype:  `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">`,
+			expected: "XHTML",
+		},
+		{
+			name:     "HTML 4.01 Strict DOCTYPE",
+			doctype:  `<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">`,
+			expected: "HTML 4.01",
+		},
+		{
+			name:     "HTML 4.01 Transitional DOCTYPE",
+			doctype:  `<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">`,
+			expected: "HTML 4.01",
+		},
+		{
+			name:     "HTML 4.01 Frameset DOCTYPE",
+			doctype:  `<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Frameset//EN" "http://www.w3.org/TR/html4/frameset.dtd">`,
+			expected: "HTML 4.01",
+		},
+		{
+			name:     "XHTML 1.0 Transitional DOCTYPE",
+			doctype:  `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">`,
+			expected: "XHTML",
+		},
+		{
+			name:     "XHTML 1.0 Frameset DOCTYPE",
+			doctype:  `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Frameset//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-frameset.dtd">`,
+			expected: "XHTML",
+		},
+		{
+			name:     "Unknown DOCTYPE",
+			doctype:  `<!DOCTYPE unknown>`,
+			expected: "Unknown",
+		},
+		{
+			name:     "Empty DOCTYPE",
+			doctype:  `<!DOCTYPE>`,
+			expected: "Unknown",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var token html.Token
+
+			if tt.expected == "HTML5" {
+				token = html.Token{
+					Type: html.DoctypeToken,
+					Data: "html", // Crucial for HTML5
+				}
+			} else { // Handle other doctypes which have public/system identifiers
+				token = html.Token{
+					Type: html.DoctypeToken,
+					Data: "html",
+					Attr: []html.Attribute{
+						{Key: "public", Val: tt.doctype},
+					},
+				}
+			}
+
+			actual := DetectHTMLVersion(token)
 			assert.Equal(t, tt.expected, actual)
 		})
 	}
