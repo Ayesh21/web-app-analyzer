@@ -1,5 +1,7 @@
 package model
 
+// PageData holds the analysis results for a web page
+// It includes metadata such as URL, HTML version, title, heading counts, link counts, login form presence, and errors.
 type PageData struct {
 	URL           string
 	HTMLVersion   string
@@ -7,7 +9,6 @@ type PageData struct {
 	HeadingsCount map[string]int
 	InternalLinks int
 	ExternalLinks int
-	BrokenLinks   int
 	HasLoginForm  bool
 	ErrorMessage  string
 }

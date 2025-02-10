@@ -9,7 +9,10 @@ import (
 )
 
 func main() {
+	// Route for home page
 	http.HandleFunc("/", controller.HomePageHandler)
+
+	// Route for analyzing web pages
 	http.HandleFunc("/analyze", controller.AnalyzerHandler)
 
 	fmt.Println("Server started at http://localhost:8080")
