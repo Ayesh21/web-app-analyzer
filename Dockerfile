@@ -8,7 +8,7 @@ RUN go mod download
 
 COPY . .
 
-RUN go build -o web-app-analyzer ./main.go
+RUN go build -o web-app-analyzer ./cmd/app/main.go
 
 # Final Stage
 FROM alpine:3.18
