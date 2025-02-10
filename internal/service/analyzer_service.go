@@ -25,11 +25,7 @@ func AnalyzeHTML(response *http.Response, baseURL *url.URL) model.PageData {
 			return pageData
 		case html.DoctypeToken:
 			token := tokenizer.Token()
-			if strings.Contains(token.Data, "html") {
-				pageData.HTMLVersion = "HTML5"
-			} else {
-				pageData.HTMLVersion = "Unknown"
-			}
+			pageData.HTMLVersion = DetectHTMLVersion(token)
 		case html.StartTagToken, html.SelfClosingTagToken:
 			token := tokenizer.Token()
 			switch token.Data {
@@ -72,4 +68,26 @@ func AnalyzeHTML(response *http.Response, baseURL *url.URL) model.PageData {
 	}
 
 	return pageData
+}
+
+func DetectHTMLVersion(token html.Token) string {
+	if token.Type != html.DoctypeToken {
+		return "Unknown"
+	}
+
+	data := strings.ToLower(token.Data)
+
+	if data == "html" && len(token.Attr) == 0 { // Correct HTML5 check
+		return "HTML5"
+	}
+
+	for _, attr := range token.Attr {
+		val := strings.ToLower(attr.Val)
+		if strings.Contains(val, "xhtml") {
+			return "XHTML"
+		} else if strings.Contains(val, "html 4.01") {
+			return "HTML 4.01"
+		}
+	}
+	return "Unknown"
 }
