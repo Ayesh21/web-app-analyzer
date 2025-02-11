@@ -3,10 +3,10 @@ package controller
 import (
 	"fmt"
 	"html/template"
-	"log"
 	"net/http"
 	"net/url"
 	"time"
+	"web-app-analyzer/internal/logging"
 
 	"web-app-analyzer/internal/model"
 	"web-app-analyzer/internal/service"
@@ -18,18 +18,18 @@ var templatehtml = template.Must(template.ParseFS(templates.FS, "index.html"))
 
 // HomePageHandler renders the home page
 func HomePageHandler(w http.ResponseWriter, r *http.Request) {
-	log.Println("Rendering home page")
+	logging.Logger.Info("Rendering home page")
 	templatehtml.Execute(w, nil)
 }
 
 // AnalyzerHandler processes user-submitted URLs and performs analysis
 func AnalyzerHandler(w http.ResponseWriter, r *http.Request) {
 	startTime := time.Now()
-	log.Println("Received request for analysis")
+	logging.Logger.Info("Received analysis request")
 
 	// Ensure only POST requests are allowed
 	if r.Method != http.MethodPost {
-		log.Println("Invalid request method, redirecting to home page")
+		logging.Logger.Warn("Invalid request method", "method", r.Method)
 		http.Redirect(w, r, "/", http.StatusSeeOther)
 		return
 	}
@@ -37,24 +37,27 @@ func AnalyzerHandler(w http.ResponseWriter, r *http.Request) {
 	// Retrieve the URL from the request form
 	urlValue := r.FormValue("url")
 	if urlValue == "" {
-		log.Println("User did not provide a URL")
+		logging.Logger.Warn("User did not provide a URL")
 		templatehtml.Execute(w, model.PageData{ErrorMessage: "Please Enter a URl"})
 		return
 	}
 
+	logging.Logger.Info("Processing URL", "url", urlValue)
+
 	// Validate the URL format
 	parsedURL, err := url.Parse(urlValue)
 	if err != nil || !parsedURL.IsAbs() {
-		log.Printf("Invalid URL format: %s\n", urlValue)
+		logging.Logger.Warn("Invalid URL format", "url", urlValue)
 		templatehtml.Execute(w, model.PageData{ErrorMessage: "Invalid URL Format"})
 		return
 	}
 
-	log.Printf("Fetching URL: %s\n", parsedURL.String())
+	logging.Logger.Info("Fetching URL", "url", parsedURL.String())
+
 	// Fetch the web page content
 	response, err := http.Get(parsedURL.String())
 	if err != nil {
-		log.Printf("Failed to fetch URL: %v\n", err)
+		logging.Logger.Error("Failed to fetch URL", "url", parsedURL.String(), "error", err)
 		templatehtml.Execute(w, model.PageData{ErrorMessage: fmt.Sprintf("Failed to fetch URL: %v", err)})
 		return
 	}
@@ -62,7 +65,7 @@ func AnalyzerHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Handle non-200 HTTP responses
 	if response.StatusCode != http.StatusOK {
-		log.Printf("HTTP Error: %d %s\n", response.StatusCode, http.StatusText(response.StatusCode))
+		logging.Logger.Warn("HTTP Error", "status_code", response.StatusCode, "url", parsedURL.String())
 		templatehtml.Execute(w, model.PageData{ErrorMessage: fmt.Sprintf("HTTP Error: %d %s", response.StatusCode, http.StatusText(response.StatusCode))})
 		return
 	}
@@ -72,5 +75,6 @@ func AnalyzerHandler(w http.ResponseWriter, r *http.Request) {
 	pageData.URL = urlValue
 
 	templatehtml.Execute(w, pageData)
-	log.Printf("Analysis completed in %v\n", time.Since(startTime))
+	logging.Logger.Info("Analysis completed", "url", urlValue, "time_taken", time.Since(startTime))
+
 }

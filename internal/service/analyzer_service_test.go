@@ -7,10 +7,17 @@ import (
 	"net/url"
 	"strings"
 	"testing"
+	"web-app-analyzer/internal/logging"
 
 	"github.com/stretchr/testify/assert"
 	"web-app-analyzer/internal/model"
 )
+
+// TestMain runs before all tests
+func TestMain(m *testing.M) {
+	logging.InitLogger()
+	m.Run()
+}
 
 // Mock HTTP response to simulate HTML content.
 func mockResponse(htmlContent string) *http.Response {
