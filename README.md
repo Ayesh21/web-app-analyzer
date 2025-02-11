@@ -16,8 +16,7 @@ structure
 
 /web-app-analyzer  
 │── go.mod                  # Go module dependencies  
-│── go.sum                  # Go dependencies  
-│── main.go                 # Application entry point  
+│── go.sum                  # Go dependencies   
 │── /.github  
 │   ├── /workflows  
 │   │   ├── development.yml   # GitHub action CI/CD pipeline configurations  
@@ -32,8 +31,12 @@ structure
 │   │   ├── page_data.go                    # Data layer  
 │   │── /templates  
 │   │   ├── index.html                      # HTML template for rendering responses  
+│── /cmd  
+│   │── /app  
+│   │   ├── main.go                 # Application entry point    
 │── DockerFile                 # Docker file  
 │── README.md                  # Project overview  
+
 
 ## Installation
 Ensure you have Go 1.23 installed.
@@ -43,8 +46,9 @@ cd web-app-analyzer
 go mod tidy
 ```
 ## Building & Running the Application
-`go build`
-`go run .`
+`go build -o web-app-analyzer ./cmd/app/main.go`
+
+`go run cmd/app/main.go`
 
 ## Running Tests
 `go test -v ./internal/controller/... ./internal/service/...`
