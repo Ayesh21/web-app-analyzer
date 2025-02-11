@@ -1,6 +1,7 @@
 package service
 
 import (
+	"log"
 	"net/http"
 	"net/url"
 	"strings"
@@ -29,10 +30,12 @@ func AnalyzeHTML(response *http.Response, baseURL *url.URL) model.PageData {
 		switch tokenType {
 		case html.ErrorToken:
 			// Reached end of document; return the collected data
+			log.Println("Reached end of HTML document")
 			return pageData
 		case html.DoctypeToken:
 			token := tokenizer.Token()
 			// Extract and detect the HTML version
+			log.Printf("Extract and detect HTML version: %s\n", pageData.HTMLVersion)
 			pageData.HTMLVersion = DetectHTMLVersion(token)
 		case html.StartTagToken, html.SelfClosingTagToken:
 			// Handle different HTML elements based on tag type
@@ -43,9 +46,11 @@ func AnalyzeHTML(response *http.Response, baseURL *url.URL) model.PageData {
 				inTitle = true
 			case "h1", "h2", "h3", "h4", "h5", "h6":
 				// Count occurrences of each heading type
+				log.Printf("Found heading: %s\n", token.Data)
 				pageData.HeadingsCount[token.Data]++
 			case "a":
 				// Extract link attributes
+				log.Println("Processing external and internal links")
 				for _, attr := range token.Attr {
 					if attr.Key == "href" {
 						link := attr.Val
@@ -67,6 +72,7 @@ func AnalyzeHTML(response *http.Response, baseURL *url.URL) model.PageData {
 				for _, attr := range token.Attr {
 					if attr.Key == "type" && attr.Val == "password" {
 						pageData.HasLoginForm = true
+						log.Println("Detected a login form")
 					}
 				}
 
@@ -75,6 +81,7 @@ func AnalyzeHTML(response *http.Response, baseURL *url.URL) model.PageData {
 			// Capture the title text when inside a <title> tag
 			if inTitle {
 				pageData.Title = tokenizer.Token().Data
+				log.Printf("Extracted page title: %s\n", pageData.Title)
 				inTitle = false
 			}
 		}
@@ -86,6 +93,7 @@ func AnalyzeHTML(response *http.Response, baseURL *url.URL) model.PageData {
 
 // DetectHTMLVersion determines the HTML version based on the DOCTYPE declaration.
 func DetectHTMLVersion(token html.Token) string {
+	log.Println("Processing HTML version")
 	if token.Type != html.DoctypeToken {
 		return "Unknown"
 	}
