@@ -15,7 +15,7 @@ func InitLogger() {
 	}
 
 	// Create logs directory if not exists
-	os.Mkdir("logs", 0755)
+	os.Mkdir("logs/app.log", 0755)
 
 	// Clear previous logs
 	logFilePath := "logs/app.log"

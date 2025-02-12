@@ -6,31 +6,59 @@
     <title>Web Page Analyzer</title>
 </head>
 <body>
+
 <h1>Web Page Analyzer</h1>
+
 <form action="/analyze" method="post">
     <label for="url">Enter URL:</label>
-    <input type="text" id="url" name="url">
+    <input type="text" id="url" name="url" required>
     <button type="submit">Analyze</button>
 </form>
 
-{{if .ErrorMessage}}
-<p style="color: red;">ErrorMessage: {{.ErrorMessage}}</p>
-{{else if .URL}}
-<h2>Analysis Results for: {{.URL}}</h2>
-<ul>
-    <li><strong>HTML Version:</strong> {{.HTMLVersion}}</li>
-    <li><strong>Page Title:</strong> {{.Title}}</li>
-    <li><strong>Headings:</strong>
-        <ul>
-            {{range $key, $val := .HeadingsCount}}
-            <li>{{$key}}: {{$val}}</li>
-            {{end}}
-        </ul>
-    </li>
-    <li><strong>Internal Links:</strong> {{.InternalLinks}}</li>
-    <li><strong>External Links:</strong> {{.ExternalLinks}}</li>
-    <li><strong>Login Form Present:</strong> {{if .HasLoginForm}}Yes{{else}}No{{end}}</li>
-</ul>
-{{end}}
+<div class="container">
+    {{if .ErrorMessage}}
+    <p class="error">Error: {{.ErrorMessage}}</p>
+    {{else if .URL}}
+    <h2>Analysis Results for: {{.URL}}</h2>
+
+    <table>
+        <tr>
+            <th>Property</th>
+            <th>Value</th>
+        </tr>
+        <tr>
+            <td><strong>HTML Version</strong></td>
+            <td>{{.HTMLVersion}}</td>
+        </tr>
+        <tr>
+            <td><strong>Page Title</strong></td>
+            <td>{{.Title}}</td>
+        </tr>
+        <tr>
+            <td><strong>Headings</strong></td>
+            <td>
+                <ul>
+                    {{range $key, $val := .HeadingsCount}}
+                    <li>{{$key}}: {{$val}}</li>
+                    {{end}}
+                </ul>
+            </td>
+        </tr>
+        <tr>
+            <td><strong>Internal Links</strong></td>
+            <td>{{.InternalLinks}}</td>
+        </tr>
+        <tr>
+            <td><strong>External Links</strong></td>
+            <td>{{.ExternalLinks}}</td>
+        </tr>
+        <tr>
+            <td><strong>Login Form Present</strong></td>
+            <td>{{if .HasLoginForm}}Yes{{else}}No{{end}}</td>
+        </tr>
+    </table>
+    {{end}}
+</div>
+
 </body>
 </html>
