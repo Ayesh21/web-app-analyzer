@@ -14,11 +14,10 @@ func main() {
 	logging.InitLogger()
 	logging.Logger.Info("Starting server...")
 
-	// Serve static files (CSS, JS, images, etc.)
-	fs := http.FileServer(http.Dir("static"))
-	http.Handle("/static/", http.StripPrefix("/static/", fs))
+	// Serve static files (CSS, JS, Images)
+	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("web/static"))))
 
-	// Route for home page
+	// Route for home page (Keep ONLY this one for "/")
 	http.HandleFunc("/", controller.HomePageHandler)
 
 	// Route for analyzing web pages

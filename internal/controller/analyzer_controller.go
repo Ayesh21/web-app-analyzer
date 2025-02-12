@@ -7,10 +7,10 @@ import (
 	"net/url"
 	"time"
 	"web-app-analyzer/internal/logging"
+	"web-app-analyzer/web/templates"
 
 	"web-app-analyzer/internal/model"
 	"web-app-analyzer/internal/service"
-	"web-app-analyzer/internal/templates"
 )
 
 // Load the HTML template file and store it for rendering responses
