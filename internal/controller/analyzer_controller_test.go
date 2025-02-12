@@ -6,9 +6,16 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
+	"web-app-analyzer/internal/logging"
 
 	"github.com/stretchr/testify/assert"
 )
+
+// TestMain runs before all tests
+func TestMain(m *testing.M) {
+	logging.InitLogger()
+	m.Run()
+}
 
 // TestHomePageHandler ensures the home page loads successfully.
 func TestHomePageHandler(t *testing.T) {

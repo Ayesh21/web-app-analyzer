@@ -1,10 +1,10 @@
 package service
 
 import (
-	"log"
 	"net/http"
 	"net/url"
 	"strings"
+	"web-app-analyzer/internal/logging"
 
 	"golang.org/x/net/html"
 	"web-app-analyzer/internal/model"
@@ -12,6 +12,8 @@ import (
 
 // AnalyzeHTML parses the HTML content and extracts metadata
 func AnalyzeHTML(response *http.Response, baseURL *url.URL) model.PageData {
+	logging.Logger.Info("Starting HTML analysis", "url", baseURL.String())
+
 	// Initialize the HTML tokenizer to parse the response body
 	tokenizer := html.NewTokenizer(response.Body)
 	defer response.Body.Close()
@@ -30,13 +32,13 @@ func AnalyzeHTML(response *http.Response, baseURL *url.URL) model.PageData {
 		switch tokenType {
 		case html.ErrorToken:
 			// Reached end of document; return the collected data
-			log.Println("Reached end of HTML document")
+			logging.Logger.Info("Reached end of HTML document")
 			return pageData
 		case html.DoctypeToken:
 			token := tokenizer.Token()
 			// Extract and detect the HTML version
-			log.Printf("Extract and detect HTML version: %s\n", pageData.HTMLVersion)
 			pageData.HTMLVersion = DetectHTMLVersion(token)
+			logging.Logger.Info("Detected HTML version", "version", pageData.HTMLVersion)
 		case html.StartTagToken, html.SelfClosingTagToken:
 			// Handle different HTML elements based on tag type
 			token := tokenizer.Token()
@@ -46,11 +48,10 @@ func AnalyzeHTML(response *http.Response, baseURL *url.URL) model.PageData {
 				inTitle = true
 			case "h1", "h2", "h3", "h4", "h5", "h6":
 				// Count occurrences of each heading type
-				log.Printf("Found heading: %s\n", token.Data)
 				pageData.HeadingsCount[token.Data]++
+				logging.Logger.Info("Found heading", "tag", token.Data)
 			case "a":
 				// Extract link attributes
-				log.Println("Processing external and internal links")
 				for _, attr := range token.Attr {
 					if attr.Key == "href" {
 						link := attr.Val
@@ -62,8 +63,10 @@ func AnalyzeHTML(response *http.Response, baseURL *url.URL) model.PageData {
 								link = linkURL.String()
 							}
 							pageData.InternalLinks++
+							logging.Logger.Info("Found internal link", "url", link)
 						} else {
 							pageData.ExternalLinks++
+							logging.Logger.Info("Found external link", "url", link)
 						}
 					}
 				}
@@ -72,7 +75,7 @@ func AnalyzeHTML(response *http.Response, baseURL *url.URL) model.PageData {
 				for _, attr := range token.Attr {
 					if attr.Key == "type" && attr.Val == "password" {
 						pageData.HasLoginForm = true
-						log.Println("Detected a login form")
+						logging.Logger.Info("Detected a login form")
 					}
 				}
 
@@ -81,7 +84,7 @@ func AnalyzeHTML(response *http.Response, baseURL *url.URL) model.PageData {
 			// Capture the title text when inside a <title> tag
 			if inTitle {
 				pageData.Title = tokenizer.Token().Data
-				log.Printf("Extracted page title: %s\n", pageData.Title)
+				logging.Logger.Info("Extracted page title", "title", pageData.Title)
 				inTitle = false
 			}
 		}
@@ -93,7 +96,7 @@ func AnalyzeHTML(response *http.Response, baseURL *url.URL) model.PageData {
 
 // DetectHTMLVersion determines the HTML version based on the DOCTYPE declaration.
 func DetectHTMLVersion(token html.Token) string {
-	log.Println("Processing HTML version")
+	logging.Logger.Info("Processing HTML version")
 	if token.Type != html.DoctypeToken {
 		return "Unknown"
 	}
@@ -114,5 +117,7 @@ func DetectHTMLVersion(token html.Token) string {
 			return "HTML 4.01"
 		}
 	}
+
+	logging.Logger.Warn("Could not determine HTML version")
 	return "Unknown"
 }
