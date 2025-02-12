@@ -29,11 +29,19 @@ structure
 │   │   ├── analyzer_service_test.go        # Unit tests for service  
 │   │── /model  
 │   │   ├── page_data.go                    # Data layer  
-│   │── /templates  
-│   │   ├── index.html                      # HTML template for rendering responses  
+│   │── /logging  
+│   │   ├── logger.go                      # Log configuration      
+├── /web  
+│   ├── /templates  
+│   │   ├── index.html                       # HTML template for rendering responses      
+│   ├── /static   
+│   │   ├── /css   
+│   │   │   ├── styles.css                     # CSS styling     
 │── /cmd  
 │   │── /app  
-│   │   ├── main.go                 # Application entry point    
+│   │   ├── main.go                 # Application entry point  
+│── /logs  
+│   ├── app.log                             # Log file  
 │── DockerFile                 # Docker file  
 │── README.md                  # Project overview  
 
