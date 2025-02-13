@@ -1,6 +1,13 @@
-window.onload = function() {
-    var errorMessage = document.getElementById("error-message");
-    if (errorMessage && errorMessage.innerText.trim() !== "") {
-        alert(errorMessage.innerText.trim());
-    }
-};
+function showLoader() {
+    document.getElementById("analyzeForm").style.display = "none";
+    document.getElementById("loader").style.display = "block";
+    document.getElementById("main-container").style.display = "none";
+
+    // Delay form submission by 2 seconds
+    setTimeout(() => {
+        document.getElementById("analyzeForm").submit();
+    }, 2000);
+
+    // Stop immediate form submission
+    return false;
+}

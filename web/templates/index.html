@@ -10,59 +10,28 @@
 </head>
 <body>
 
-<div class="main-container">
+<div id="main-container" class="main-container">
     <h1>Web Page Analyzer</h1>
 
-    <form action="/analyze" method="post">
+    <form id="analyzeForm" action="/results" method="get" onsubmit="return showLoader()">
         <label for="url">Enter URL:</label>
         <input type="text" id="url" name="url">
-        <button type="submit" >Analyze</button>
+        <button type="submit">Analyze</button>
     </form>
 
-    <div class="form-container">
-        {{if .ErrorMessage}}
-        <p id="error-message" class="error" style="display: none;">Error: {{.ErrorMessage}}</p>
-        {{else if .URL}}
-        <h2>Analysis Results for: {{.URL}}</h2>
-
-        <table>
-            <tr>
-                <th>Property</th>
-                <th>Value</th>
-            </tr>
-            <tr>
-                <td><strong>HTML Version</strong></td>
-                <td>{{.HTMLVersion}}</td>
-            </tr>
-            <tr>
-                <td><strong>Page Title</strong></td>
-                <td>{{.Title}}</td>
-            </tr>
-            <tr>
-                <td><strong>Headings</strong></td>
-                <td>
-                    <ul>
-                        {{range $key, $val := .HeadingsCount}}
-                        <li>{{$key}}: {{$val}}</li>
-                        {{end}}
-                    </ul>
-                </td>
-            </tr>
-            <tr>
-                <td><strong>Internal Links</strong></td>
-                <td>{{.InternalLinks}}</td>
-            </tr>
-            <tr>
-                <td><strong>External Links</strong></td>
-                <td>{{.ExternalLinks}}</td>
-            </tr>
-            <tr>
-                <td><strong>Login Form Present</strong></td>
-                <td>{{if .HasLoginForm}}Yes{{else}}No{{end}}</td>
-            </tr>
-        </table>
-        {{end}}
+    <!-- Display Error Message If Any -->
+    {{if .ErrorMessage}}
+    <div class="error-message-container">
+        <p id="error-message" class="error">Error: {{.ErrorMessage}}</p>
     </div>
+    {{end}}
 </div>
+
+<!-- Page Loader (Hidden Initially) -->
+<div id="loader" class="loader" style="display: none;">
+    <h4>Loading results...</h4>
+    <div class="loader-spinner"></div>
+</div>
+
 </body>
 </html>

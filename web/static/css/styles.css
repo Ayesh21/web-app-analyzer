@@ -20,6 +20,10 @@ h2 {
     color: #2c136e;
 }
 
+h4 {
+    color: #2c136e;
+}
+
 form {
     background: #fff;
     padding: 20px;
@@ -49,9 +53,21 @@ button:hover {
     background: #6689a8;
 }
 
+.error-message-container {
+    background-color: #fce4e4;
+    border: 1px solid #fcc2c3;
+    margin: 10px;
+    box-shadow: rgba(0, 0, 0, 0.1) 0px 0px 10px;
+    border-radius: 8px;
+}
+
 .error {
-    color: red;
+    color: #cc0033;
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 13px;
     font-weight: bold;
+    line-height: 20px;
+    text-shadow: 1px 1px rgba(250,250,250,.3);
 }
 
 .form-container {
@@ -59,7 +75,7 @@ button:hover {
 }
 
 table {
-    width: 60%;
+    width: 80%;
     margin: 20px auto;
     border-collapse: collapse;
     background: #fff;
@@ -79,11 +95,19 @@ th {
     color: white;
 }
 
+td{
+    font-size: 13px;
+}
+
 tr:nth-child(even) {
     background: #f9f9f9;
 }
 
-.main-container{
+ul{
+    padding-left: 10px;
+}
+
+.main-container {
     width: 50%;
     max-width: 600px;
     background: rgba(255, 255, 255, 0.9);
@@ -95,4 +119,54 @@ tr:nth-child(even) {
     left: 50%;
     transform: translate(-50%, -50%);
     text-align: center;
+}
+
+.loader {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(255, 255, 255, 0.9);
+    padding: 30px;
+    border-radius: 12px;
+    text-align: center;
+    width: 320px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.loader-spinner {
+    border: 6px solid #f3f3f3;
+    border-radius: 50%;
+    border-top: 6px solid #3498db;
+    width: 50px;
+    height: 50px;
+    animation: spin 2s linear infinite;
+    color: #2c136e;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 10px auto;
+}
+
+/* Spinner Animation */
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+a:visited {
+    color: #3498db;
+}
+
+a.clicked {
+    color: #3498db;
+    font-weight: bold;
 }

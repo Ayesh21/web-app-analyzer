@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="/static/css/styles.css">
+    <script src="/static/js/script.js" defer></script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analysis Results</title>
+</head>
+<body>
+
+<div class="main-container">
+    <button type="button" onclick="window.location.href='/'">Back</button>
+
+    <h2>Analysis Results for: <a href="{{.URL}}" target="_blank">{{.URL}}</a></h2>
+
+    <table>
+        <tr>
+            <th>Property</th>
+            <th>Value</th>
+        </tr>
+        <tr>
+            <td><strong>HTML Version</strong></td>
+            <td>{{.HTMLVersion}}</td>
+        </tr>
+        <tr>
+            <td><strong>Page Title</strong></td>
+            <td>{{.Title}}</td>
+        </tr>
+        <tr>
+            <td><strong>Headings</strong></td>
+            <td>
+                <ul>
+                    {{range $key, $val := .HeadingsCount}}
+                    <li>'{{$key}}' Headings : {{$val}}</li>
+                    {{end}}
+                </ul>
+            </td>
+        </tr>
+        <tr>
+            <td><strong>Internal Links</strong></td>
+            <td>{{.InternalLinks}}</td>
+        </tr>
+        <tr>
+            <td><strong>External Links</strong></td>
+            <td>{{.ExternalLinks}}</td>
+        </tr>
+        <tr>
+            <td><strong>Login Form Present</strong></td>
+            <td>{{if .HasLoginForm}}Yes{{else}}No{{end}}</td>
+        </tr>
+    </table>
+</div>
+
+</body>
+</html>
