@@ -1,0 +1,46 @@
+name: Web-App-Analyzer CI/CD
+
+on:
+  push:
+    branches:
+      - develop
+
+
+jobs:
+  test:
+    name: Run Unit Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Go Lang
+        uses: actions/setup-go@v5
+        with:
+          go-version: 1.23
+
+      - name: Install Dependencies
+        run: go mod tidy
+
+      - name: Run Unit Tests
+        run: go test -v ./internal/controller/... ./internal/service/...
+
+      - name: Run Unit Tests with coverage
+        run: go test -cover ./internal/controller/... ./internal/service/...
+
+  build:
+    name: Build Application
+    runs-on: ubuntu-latest
+    needs: [ test ]
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Go Lang
+        uses: actions/setup-go@v5
+        with:
+          go-version: 1.23
+
+      - name: Build Binary
+        run: go build -o web-app-analyzer ./cmd/app/main.go

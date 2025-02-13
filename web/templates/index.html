@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="/static/css/styles.css">
+    <script src="/static/js/script.js" defer></script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Page Analyzer</title>
+</head>
+<body>
+
+<div id="main-container" class="main-container">
+    <h1>Web Page Analyzer</h1>
+
+    <form id="analyzeForm" action="/results" method="get" onsubmit="return showLoader()">
+        <label for="url">Enter URL:</label>
+        <input type="text" id="url" name="url">
+        <button type="submit">Analyze</button>
+    </form>
+
+    <!-- Display Error Message If Any -->
+    {{if .ErrorMessage}}
+    <div class="error-message-container">
+        <p id="error-message" class="error">Error: {{.ErrorMessage}}</p>
+    </div>
+    {{end}}
+</div>
+
+<!-- Page Loader (Hidden Initially) -->
+<div id="loader" class="loader" style="display: none;">
+    <h4>Loading results...</h4>
+    <div class="loader-spinner"></div>
+</div>
+
+</body>
+</html>
