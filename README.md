@@ -33,10 +33,13 @@ structure
 │   │   ├── logger.go                      # Log configuration      
 ├── /web  
 │   ├── /templates  
-│   │   ├── index.html                       # HTML template for rendering responses      
+│   │   ├── index.html                       # HTML template for main UI  
+│   │   ├── results.html                       # HTML template for rendering results   
 │   ├── /static   
 │   │   ├── /css   
-│   │   │   ├── styles.css                     # CSS styling     
+│   │   │   ├── styles.css                     # CSS styling   
+│   ├── /images   
+│   │   ├── background.jpg                     #Background image 
 │── /cmd  
 │   │── /app  
 │   │   ├── main.go                 # Application entry point  
@@ -74,11 +77,22 @@ start coverage.html
 * Serves the home page.
 * `http://localhost:8080/`
 
-`POST /analyze`
+`GET /analyze`
 
 * Accepts a URL for analysis.
 * Returns extracted page data or an error message.
 
+## ERRORS
+
+<img src="https://github.com/user-attachments/assets/775e5b94-641b-4dbf-9cdf-75f661135e7a" width="300">
+
+<img src="https://github.com/user-attachments/assets/0ab90b88-e22f-42fd-888c-a4ed74d36c7f" width="300">
+
+<img src="https://github.com/user-attachments/assets/7050a68b-7bdf-4612-ad37-60a97e960538" width="300">
+
+## Demo
+
+[Watch the video](https://drive.google.com/file/d/1Y5N-hTQf2ZIaf5a98t19FfePcg-5U_eh/view?usp=sharing)
 
 
 
