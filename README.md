@@ -82,7 +82,7 @@ start coverage.html
 * Accepts a URL for analysis.
 * Returns extracted page data or an error message.
 
-## ERRORS
+## Errors
 
 <img src="https://github.com/user-attachments/assets/775e5b94-641b-4dbf-9cdf-75f661135e7a" width="300">
 
@@ -93,6 +93,29 @@ start coverage.html
 ## Demo
 
 [Watch the video](https://drive.google.com/file/d/1Y5N-hTQf2ZIaf5a98t19FfePcg-5U_eh/view?usp=sharing)
+
+## Problems Faced During The Implementation 
+
+### Routing Issue
+When I ran the unit tests, I got the following error:  `panic: open C:\Users\Ayesh Navindu\OneDrive\Desktop\Go\web-app-analyzer\web-app-analyzer\internal\templates\index.html: The system cannot find the path specified.` However, the application works fine when I run it.
+
+As the solution I used  `//go:embed` (we can use this to embed one or more files into a file system:)
+
+```
+//go:embed index.html results.html
+var FS embed.FS
+```
+### Divide Index.html Into Two
+
+To make the final output more readable, I decided to handle a separate `HTML` file for the results. So, I created two `HTML` files: `index.html` and `results.html`.
+
+When I had only `index.html`, the form used `POST` because the same page handled both the input and the result rendering. However, after introducing two `HTML` files, I had to use `GET` since I needed a way to pass data from `index.html` to `results.html`. This is why I switched to `GET`.
+
+After switching to `HTTP GET`, I refactored all the controller and contoller unit tests to retrieve data from query parameters.
+
+
+
+
 
 
 
