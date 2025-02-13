@@ -24,7 +24,7 @@ func InitLogger() {
 		return
 	}
 
-	// Ensure logs directory exists
+	// Check logs directory exists
 	logDir := "logs"
 	if _, err := os.Stat(logDir); os.IsNotExist(err) {
 		err := os.Mkdir(logDir, 0755)

@@ -52,33 +52,12 @@ func AnalyzeHTML(response *http.Response, baseURL *url.URL) model.PageData {
 				logging.Logger.Info("Found heading", "tag", token.Data)
 			case "a":
 				// Extract link attributes
-				for _, attr := range token.Attr {
-					if attr.Key == "href" {
-						link := attr.Val
-
-						// Check if the link is internal or external
-						if !strings.HasPrefix(link, "http") && !strings.HasPrefix(link, "//") {
-							linkURL, err := baseURL.Parse(link)
-							if err == nil {
-								link = linkURL.String()
-							}
-							pageData.InternalLinks++
-							logging.Logger.Info("Found internal link", "url", link)
-						} else {
-							pageData.ExternalLinks++
-							logging.Logger.Info("Found external link", "url", link)
-						}
-					}
-				}
+				processLink(token, baseURL, &pageData)
 			case "input":
 				// Check if the page has a login form by detecting password fields
-				for _, attr := range token.Attr {
-					if attr.Key == "type" && attr.Val == "password" {
-						pageData.HasLoginForm = true
-						logging.Logger.Info("Detected a login form")
-					}
+				if hasLoginForm(token) {
+					pageData.HasLoginForm = true
 				}
-
 			}
 		case html.TextToken:
 			// Capture the title text when inside a <title> tag
@@ -120,4 +99,36 @@ func DetectHTMLVersion(token html.Token) string {
 
 	logging.Logger.Warn("Could not determine HTML version")
 	return "Unknown"
+}
+
+// processLink determines if a link is internal or external
+func processLink(token html.Token, baseURL *url.URL, pageData *model.PageData) {
+	for _, attr := range token.Attr {
+		if attr.Key == "href" {
+			link := attr.Val
+
+			// Check if the link is internal or external
+			if !strings.HasPrefix(link, "http") && !strings.HasPrefix(link, "//") {
+				linkURL, err := baseURL.Parse(link)
+				if err == nil {
+					link = linkURL.String()
+				}
+				pageData.InternalLinks++
+				logging.Logger.Info("Found internal link", "url", link)
+			} else {
+				pageData.ExternalLinks++
+				logging.Logger.Info("Found external link", "url", link)
+			}
+		}
+	}
+}
+
+// hasLoginForm checks if an input field is a password field
+func hasLoginForm(token html.Token) bool {
+	for _, attr := range token.Attr {
+		if attr.Key == "type" && attr.Val == "password" {
+			return true
+		}
+	}
+	return false
 }

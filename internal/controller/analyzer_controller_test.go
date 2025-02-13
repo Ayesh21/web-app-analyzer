@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
-	"strings"
+	"net/url"
 	"testing"
 	"web-app-analyzer/internal/logging"
 
@@ -17,7 +17,7 @@ func TestMain(m *testing.M) {
 	m.Run()
 }
 
-// TestHomePageHandler ensures the home page loads successfully.
+// TestHomePageHandler Testing whether the home page loads successfully.
 func TestHomePageHandler(t *testing.T) {
 	req, err := http.NewRequest("GET", "/", nil)
 	assert.NoError(t, err, "Error creating request")
@@ -29,9 +29,9 @@ func TestHomePageHandler(t *testing.T) {
 	assert.Equal(t, http.StatusOK, recorder.Code, "Expected HTTP status 200 OK")
 }
 
-// TestAnalyzerHandler_InvalidMethod ensures GET requests are redirected.
+// TestAnalyzerHandler_InvalidMethod Testing whether non-GET HTTP requests are redirected.
 func TestAnalyzerHandler_InvalidMethod(t *testing.T) {
-	req, err := http.NewRequest("GET", "/analyze", nil)
+	req, err := http.NewRequest("POST", "/results", nil)
 	assert.NoError(t, err, "Error creating request")
 
 	recorder := httptest.NewRecorder()
@@ -39,73 +39,64 @@ func TestAnalyzerHandler_InvalidMethod(t *testing.T) {
 	handler.ServeHTTP(recorder, req)
 
 	assert.Equal(t, http.StatusSeeOther, recorder.Code, "Expected HTTP status 303 See Other")
+	assert.Equal(t, "/?error=Invalid+Request+Method", recorder.Header().Get("Location"), "Expected redirect to home page with error")
 }
 
-// TestAnalyzerHandler_EmptyURL ensures that an empty URL triggers an error.
+// TestAnalyzerHandler_EmptyURL Testing whether that an empty URL triggers a redirect.
 func TestAnalyzerHandler_EmptyURL(t *testing.T) {
-	req, err := http.NewRequest("POST", "/analyze", strings.NewReader("url="))
+	req, err := http.NewRequest("GET", "/results", nil)
 	assert.NoError(t, err, "Error creating request")
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
 	recorder := httptest.NewRecorder()
 	handler := http.HandlerFunc(AnalyzerHandler)
 	handler.ServeHTTP(recorder, req)
 
-	assert.Equal(t, http.StatusOK, recorder.Code, "Expected HTTP status 200 OK")
-	assert.Contains(t, recorder.Body.String(), "Please Enter a URl", "Expected error message for empty URL")
+	assert.Equal(t, http.StatusSeeOther, recorder.Code, "Expected HTTP status 303 See Other")
+	assert.Equal(t, "/?error=Please+Enter+a+URL", recorder.Header().Get("Location"), "Expected redirect with error message")
 }
 
-// TestAnalyzerHandler_InvalidURL ensures that an invalid URL triggers an error.
+// TestAnalyzerHandler_InvalidURL Testing whether that an invalid URL triggers a redirect.
 func TestAnalyzerHandler_InvalidURL(t *testing.T) {
-	req, err := http.NewRequest("POST", "/analyze", strings.NewReader("url=invalid-url"))
+	req, err := http.NewRequest("GET", "/results?url=invalid-url", nil)
 	assert.NoError(t, err, "Error creating request")
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
 	recorder := httptest.NewRecorder()
 	handler := http.HandlerFunc(AnalyzerHandler)
 	handler.ServeHTTP(recorder, req)
 
-	assert.Equal(t, http.StatusOK, recorder.Code, "Expected HTTP status 200 OK")
-	assert.Contains(t, recorder.Body.String(), "Invalid URL Format", "Expected error message for invalid URL")
+	assert.Equal(t, http.StatusSeeOther, recorder.Code, "Expected HTTP status 303 See Other")
+	assert.Equal(t, "/?error=Invalid+URL+Format", recorder.Header().Get("Location"), "Expected redirect with invalid URL error")
 }
 
 // TestAnalyzerHandler_FailedFetch simulates a request to an unreachable URL.
 func TestAnalyzerHandler_FailedFetch(t *testing.T) {
-	req, err := http.NewRequest("POST", "/analyze", strings.NewReader("url=http://invalid.test.url"))
+	req, err := http.NewRequest("GET", "/results?url=http://invalid.test.url", nil)
 	assert.NoError(t, err, "Error creating request")
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
 	recorder := httptest.NewRecorder()
 	handler := http.HandlerFunc(AnalyzerHandler)
 	handler.ServeHTTP(recorder, req)
 
-	assert.Equal(t, http.StatusOK, recorder.Code, "Expected HTTP status 200 OK")
-	assert.Contains(t, recorder.Body.String(), "Failed to fetch URL", "Expected error message for failed fetch")
+	assert.Equal(t, http.StatusSeeOther, recorder.Code, "Expected HTTP status 303 See Other")
+	assert.Equal(t, "/?error=Failed+to+fetch+URL", recorder.Header().Get("Location"), "Expected redirect with failed fetch error")
 }
 
+// TestAnalyzerHandler_HttpError simulates a scenario where the requested URL returns a 500 error.
 func TestAnalyzerHandler_HttpError(t *testing.T) {
-	// Mock a 500 internal server error
 	mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 	}))
 	defer mockServer.Close()
 
-	// Create a request with the mock URL
-	req, err := http.NewRequest("POST", "/analyze", strings.NewReader(fmt.Sprintf("url=%s", mockServer.URL)))
+	req, err := http.NewRequest("GET", "/results?url="+url.QueryEscape(mockServer.URL), nil)
 	assert.NoError(t, err, "Error creating request")
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
-	// Create a response recorder
 	recorder := httptest.NewRecorder()
-
-	// Call the handler
 	handler := http.HandlerFunc(AnalyzerHandler)
 	handler.ServeHTTP(recorder, req)
 
-	// Expected error message
-	expectedErrorMessage := fmt.Sprintf("HTTP Error: %d %s", http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError))
+	expectedRedirect := fmt.Sprintf("/?error=HTTP+Error+%d", http.StatusInternalServerError)
 
-	// Validate response
-	assert.Equal(t, http.StatusOK, recorder.Code, "Expected HTTP status 200 OK (page with error message)")
-	assert.Contains(t, recorder.Body.String(), expectedErrorMessage, "Expected error message in response body")
+	assert.Equal(t, http.StatusSeeOther, recorder.Code, "Expected HTTP status 303 See Other")
+	assert.Equal(t, expectedRedirect, recorder.Header().Get("Location"), "Expected redirect with HTTP error message")
 }
