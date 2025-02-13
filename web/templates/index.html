@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <link rel="stylesheet" href="/static/css/styles.css">
+    <script src="/static/js/script.js" defer></script>
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,58 +10,59 @@
 </head>
 <body>
 
-<h1>Web Page Analyzer</h1>
+<div class="main-container">
+    <h1>Web Page Analyzer</h1>
 
-<form action="/analyze" method="post">
-    <label for="url">Enter URL:</label>
-    <input type="text" id="url" name="url">
-    <button type="submit">Analyze</button>
-</form>
+    <form action="/analyze" method="post">
+        <label for="url">Enter URL:</label>
+        <input type="text" id="url" name="url">
+        <button type="submit" >Analyze</button>
+    </form>
 
-<div class="container">
-    {{if .ErrorMessage}}
-    <p class="error">Error: {{.ErrorMessage}}</p>
-    {{else if .URL}}
-    <h2>Analysis Results for: {{.URL}}</h2>
+    <div class="form-container">
+        {{if .ErrorMessage}}
+        <p id="error-message" class="error" style="display: none;">Error: {{.ErrorMessage}}</p>
+        {{else if .URL}}
+        <h2>Analysis Results for: {{.URL}}</h2>
 
-    <table>
-        <tr>
-            <th>Property</th>
-            <th>Value</th>
-        </tr>
-        <tr>
-            <td><strong>HTML Version</strong></td>
-            <td>{{.HTMLVersion}}</td>
-        </tr>
-        <tr>
-            <td><strong>Page Title</strong></td>
-            <td>{{.Title}}</td>
-        </tr>
-        <tr>
-            <td><strong>Headings</strong></td>
-            <td>
-                <ul>
-                    {{range $key, $val := .HeadingsCount}}
-                    <li>{{$key}}: {{$val}}</li>
-                    {{end}}
-                </ul>
-            </td>
-        </tr>
-        <tr>
-            <td><strong>Internal Links</strong></td>
-            <td>{{.InternalLinks}}</td>
-        </tr>
-        <tr>
-            <td><strong>External Links</strong></td>
-            <td>{{.ExternalLinks}}</td>
-        </tr>
-        <tr>
-            <td><strong>Login Form Present</strong></td>
-            <td>{{if .HasLoginForm}}Yes{{else}}No{{end}}</td>
-        </tr>
-    </table>
-    {{end}}
+        <table>
+            <tr>
+                <th>Property</th>
+                <th>Value</th>
+            </tr>
+            <tr>
+                <td><strong>HTML Version</strong></td>
+                <td>{{.HTMLVersion}}</td>
+            </tr>
+            <tr>
+                <td><strong>Page Title</strong></td>
+                <td>{{.Title}}</td>
+            </tr>
+            <tr>
+                <td><strong>Headings</strong></td>
+                <td>
+                    <ul>
+                        {{range $key, $val := .HeadingsCount}}
+                        <li>{{$key}}: {{$val}}</li>
+                        {{end}}
+                    </ul>
+                </td>
+            </tr>
+            <tr>
+                <td><strong>Internal Links</strong></td>
+                <td>{{.InternalLinks}}</td>
+            </tr>
+            <tr>
+                <td><strong>External Links</strong></td>
+                <td>{{.ExternalLinks}}</td>
+            </tr>
+            <tr>
+                <td><strong>Login Form Present</strong></td>
+                <td>{{if .HasLoginForm}}Yes{{else}}No{{end}}</td>
+            </tr>
+        </table>
+        {{end}}
+    </div>
 </div>
-
 </body>
 </html>

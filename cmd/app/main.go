@@ -16,6 +16,7 @@ func main() {
 
 	// Serve static files (CSS, JS, Images)
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("web/static"))))
+	//http.Handle("/images/", http.StripPrefix("/images/", http.FileServer(http.Dir("web/util/images"))))
 
 	// Route for home page (Keep ONLY this one for "/")
 	http.HandleFunc("/", controller.HomePageHandler)

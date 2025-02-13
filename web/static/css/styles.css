@@ -4,10 +4,20 @@ body {
     padding: 0;
     background-color: #f4f4f4;
     text-align: center;
+    background-image: url("/static/images/background.jpg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    color: #2c136ec9;
 }
 
 h1 {
-    color: #333;
+    color: #2c136e;
+}
+
+h2 {
+    color: #2c136e;
 }
 
 form {
@@ -29,14 +39,14 @@ input[type="text"] {
 button {
     padding: 8px 15px;
     border: none;
-    background: #28a745;
+    background: #2c136e;
     color: white;
     border-radius: 4px;
     cursor: pointer;
 }
 
 button:hover {
-    background: #218838;
+    background: #6689a8;
 }
 
 .error {
@@ -44,7 +54,7 @@ button:hover {
     font-weight: bold;
 }
 
-.container {
+.form-container {
     margin-top: 20px;
 }
 
@@ -65,10 +75,24 @@ th, td {
 }
 
 th {
-    background: #007bff;
+    background: #2c136e;
     color: white;
 }
 
 tr:nth-child(even) {
     background: #f9f9f9;
+}
+
+.main-container{
+    width: 50%;
+    max-width: 600px;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.3);
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
 }
